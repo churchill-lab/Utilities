@@ -91,7 +91,7 @@ plot(x = qtl.blup, map = map[[chr]], columns = 1:8, col = CCcolors,
 ########################
 # NOTE: This still a bit messy. Improvements are coming...
 # NOTE2: You need /data/gac/resource/CCsnps/ccfoundersnps.sqlite, which is 
-#        a database of Sanger SNPs for teh 8 DO founders.
+#        a database of Sanger SNPs for the 8 DO founders.
 
 # Arguments:
 # probs: genoprobs object in qtl2 format.
