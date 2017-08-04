@@ -1,4 +1,6 @@
 library(qtl2)
+library(RSQLite)
+library(dplyr)
 # Arguments:
 # probs: genoprobs object in qtl2 format.
 # pheno: matrix of phenotypes, samples in rows, phenotypes in columns.
