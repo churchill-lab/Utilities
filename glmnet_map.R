@@ -45,7 +45,7 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
   snpprobs = genoprob_to_snpprob(genoprobs, new.snpinfo)
 
   # Create an x matrix with the covariates and SNP probs.
-  x = cbind(add_covar, snpprobs[[1]][,"A",])
+  x = cbind(covar, snpprobs[[1]][,"A",])
 
   # Run glmnet and cross valdiation to select an optimal lambda.
   mod = glmnet(x = x, y = pheno[,1], alpha = 0.5)
