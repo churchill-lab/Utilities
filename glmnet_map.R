@@ -26,11 +26,12 @@ source("assoc_mapping.R")
 #          [[1]]: numeric matrix containing the shrunken coefficients;
 #          [[2]]: snpinfo object that corresponds to the coeffients.
 # The goal is to be able to use plot_snpasso() with the returned objects.
+# NOTE: we are using alpha = 0.5, which is between LASSO and Ridge.
 assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 1) {
 
   # Expand the SNPs and LOD scores.
   snpinfo.map = qtl2scan:::snpinfo_to_map(snpinfo)
-  expand.lod = qtl2plot:::expand_snp_results(assoc, snpinfo.map, snpinfo)
+  expand.lod  = qtl2plot:::expand_snp_results(assoc, snpinfo.map, snpinfo)
   snpinfo = data.frame(snpinfo, lod = expand.lod$lod, stringsAsFactors = FALSE)
   colnames(snpinfo)[ncol(snpinfo)] = "lod"
 
@@ -47,8 +48,8 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
   x = cbind(add_covar, snpprobs[[1]][,"A",])
 
   # Run glmnet and cross valdiation to select an optimal lambda.
-  mod = glmnet(x = x, y = pheno[,1])
-  mod.cv = cv.glmnet(x = x, y = pheno[,1])
+  mod = glmnet(x = x, y = pheno[,1], alpha = 0.5)
+  mod.cv = cv.glmnet(x = x, y = pheno[,1], alpha = 0.5)
 
   # Get the shrunken coefficients.
   coefs = as.matrix(coef(mod, s = mod.cv$lambda.min))
@@ -61,7 +62,30 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
 } # assoc_glmnet()
 
 
+# Function to get 
+get_nonzero_snps = funnction(glm_output) {
+
+  coefs   = glm_output[[1]]
+  snpinfo = glm_output[[2]]
+
+  # Expand the SNPs and LOD scores.
+  snpinfo.map = qtl2scan:::snpinfo_to_map(snpinfo)
+  expand.snps = qtl2plot:::expand_snp_results(coefs, snpinfo.map, snpinfo)
+  snpinfo = data.frame(snpinfo, expand.snps$lod, stringsAsFactors = FALSE)
+  colnames(snpinfo)[ncol(snpinfo)] = "coef"
+
+  # Select the SNPs with LOD scores above lod.thr.      
+  print(paste(nrow(snpinfo), "SNPs input."))
+  snpinfo = snpinfo[(snpinfo$coef) > 0,]
+  print(paste(nrow(snpinfo), "SNPs with coefficients != 0."))
+
+  return(snpinfo)
+
+} # get_nonzero_snps()
+
+
 #plot_snpasso(scan1output = abs(coefs), snpinfo = new.snpinfo, ylab = "coef")
 
 #plot(mod, xvar = "dev", label = TRUE)
 #plot(mod, xvar = "lambda", label = TRUE)
+
