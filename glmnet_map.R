@@ -27,6 +27,9 @@ source("assoc_mapping.R")
 #          [[2]]: snpinfo object that corresponds to the coeffients.
 # The goal is to be able to use plot_snpasso() with the returned objects.
 # NOTE: we are using alpha = 0.5, which is between LASSO and Ridge.
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# NOTE: DOES NOT ACCEPT NA VALUES!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 1) {
 
   # Expand the SNPs and LOD scores.
