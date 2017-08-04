@@ -63,7 +63,7 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
 
 
 # Function to get 
-get_nonzero_snps = funnction(glm_output) {
+get_nonzero_snps = function(glm_output) {
 
   coefs   = glm_output[[1]]
   snpinfo = glm_output[[2]]
