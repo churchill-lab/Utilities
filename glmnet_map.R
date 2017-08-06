@@ -27,9 +27,6 @@ source("assoc_mapping.R")
 #          [[2]]: snpinfo object that corresponds to the coeffients.
 # The goal is to be able to use plot_snpasso() with the returned objects.
 # NOTE: we are using alpha = 0.5, which is between LASSO and Ridge.
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DOES NOT ACCEPT NA VALUES!
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 1) {
 
   # Expand the SNPs and LOD scores.
@@ -48,7 +45,7 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
   snpprobs = genoprob_to_snpprob(genoprobs, new.snpinfo)
 
   # Create an x matrix with the covariates and SNP probs.
-  x = cbind(covar, snpprobs[[1]][,"A",])
+  x = cbind(add_covar, snpprobs[[1]][,"A",])
 
   # Run glmnet and cross valdiation to select an optimal lambda.
   mod = glmnet(x = x, y = pheno[,1], alpha = 0.5)
@@ -82,13 +79,11 @@ get_nonzero_snps = function(glm_output) {
   snpinfo = snpinfo[(snpinfo$coef) > 0,]
   print(paste(nrow(snpinfo), "SNPs with coefficients != 0."))
 
+  sdps = invert_sdp(snpinfo$sdp, 8)
+  colnames(sdps) = LETTERS[1:8]
+  snpinfo = cbind(snpinfo, sdps)
+
   return(snpinfo)
 
 } # get_nonzero_snps()
-
-
-#plot_snpasso(scan1output = abs(coefs), snpinfo = new.snpinfo, ylab = "coef")
-
-#plot(mod, xvar = "dev", label = TRUE)
-#plot(mod, xvar = "lambda", label = TRUE)
 
