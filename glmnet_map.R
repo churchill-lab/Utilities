@@ -22,12 +22,14 @@ source("assoc_mapping.R")
 # snpinfo: A snpinfo object from assoc_mapping.
 # lod.thr: Number indicating a LOD threshold to use when selecting SNPs.
 #          We will only perform glmnet on SNPs with a LOD >= lod.thr.
+# alpha: mixing proportion for LASSO vs. ridge regression Default = 0.5.
+#        See https://cran.r-project.org/web/packages/glmnet/glmnet.pdf.
 # Returns: a list with 2 elements:
 #          [[1]]: numeric matrix containing the shrunken coefficients;
-#          [[2]]: snpinfo object that corresponds to the coeffients.
+#          [[2]]: snpinfo object that corresponds to the coeffients and founder SDPs.
 # The goal is to be able to use plot_snpasso() with the returned objects.
 # NOTE: we are using alpha = 0.5, which is between LASSO and Ridge.
-assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 1) {
+assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 1, alpha = 0.5) {
 
   # Expand the SNPs and LOD scores.
   snpinfo.map = qtl2scan:::snpinfo_to_map(snpinfo)
@@ -48,8 +50,8 @@ assoc_glmnet = function(pheno, genoprobs, covar, map, assoc, snpinfo, lod.thr = 
   x = cbind(add_covar, snpprobs[[1]][,"A",])
 
   # Run glmnet and cross valdiation to select an optimal lambda.
-  mod = glmnet(x = x, y = pheno[,1], alpha = 0.5)
-  mod.cv = cv.glmnet(x = x, y = pheno[,1], alpha = 0.5)
+  mod = glmnet(x = x, y = pheno[,1], alpha = alpha)
+  mod.cv = cv.glmnet(x = x, y = pheno[,1], alpha = alpha)
 
   # Get the shrunken coefficients.
   coefs = as.matrix(coef(mod, s = mod.cv$lambda.min))
