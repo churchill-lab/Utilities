@@ -20,7 +20,7 @@ library(qtl2convert)
 #           was built by Karl and given to us.
 assoc_mapping = function(probs, pheno, idx, addcovar, intcovar = NULL, K, 
                 markers, chr, start, end, ncores = 1, 
-                snp.file = "cc_variants.sqlite") {
+                snp.file = "/hpcdata/gac/resource/CCsnps/cc_variants.sqlite") {
 
   # Make sure that we have only one chromosome.
   if(length(probs) > 1) {
@@ -48,9 +48,6 @@ assoc_mapping = function(probs, pheno, idx, addcovar, intcovar = NULL, K,
   # Extract SNPs from the database
   snpinfo = query_variants(chr, start, end)
 
-  # Names have to be replaced for future methods
-  colnames(snpinfo)[c(1,3)] = c("snp", "pos")
-
   # Index groups of similar SNPs.
   snpinfo = index_snps(map = map, snpinfo)
 
@@ -63,7 +60,7 @@ assoc_mapping = function(probs, pheno, idx, addcovar, intcovar = NULL, K,
   # Scan1.
   assoc = scan1(pheno = pheno[keep,idx, drop = FALSE], kinship = K[[1]][keep, keep],
           genoprobs = snppr, addcovar = addcovar[keep,,drop=FALSE], 
-          intcovar = addcovar[keep,intcovar], cores = ncores)
+          intcovar = intcovar[keep,,drop=FALSE], cores = ncores)
 
   # Return the scan data.
   return(list(assoc, snpinfo))
