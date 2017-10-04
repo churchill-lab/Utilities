@@ -87,4 +87,28 @@ h2_conf_int = function(pheno, covar, K, nperm = 1000, cores = 1) {
 
 } # h2_conf_int()
 
+# Function to plot the distribution and 95% confidence interval.
+# Arguments:
+# h2: heritability simulations a produced by h2_conf_int().
+# title: character vector with a short title for the plot.
+herit_dist_plot = function(h2, title = "") {
+
+  mean.h2 = mean(h2$h2.perms)
+  q95 = quantile(h2$h2.perms, probs = c(0.025, 0.975))
+  # All data.
+  df = data.frame(x = h2$h2.perms)
+  # Just the 95% confidence interval.
+  dens = density(h2$h2.perms)
+  dens = data.frame(x = dens$x, y = dens$y)
+  dens = subset(dens, x >= q95[1] & x <= q95[2])
+
+  ggplot(data = df) + 
+    geom_density(aes(x = x, y = ..density..), color = "black") +
+    geom_area(data = dens, aes(x = x, y = y), 
+    fill = rgb(1, 0, 0), alpha = 0.3) +
+    geom_vline(xintercept = mean.h2) +
+    labs(title = paste(title, "h2 =", format(mean.h2, digits = 3), "[",
+         format(q95[1], digits = 3), ",", format(q95[2], digits = 3), "]"))
+
+} # herit_dist_plot()
 
