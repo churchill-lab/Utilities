@@ -1,25 +1,15 @@
 ################################################################################
 # Simulate phenotypes with a given heritability.
-# Ideas from Sweiger et al., Am J Hum Genet. 2016.
-# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4908190/
-# 
 # Daniel Gatti
 # dan.gatti@jax.org
 # Oct. 3, 2017
 ################################################################################
 library(mvtnorm)
 library(qtl2)
+library(ggplot2)
 
 # Retain only samples with data, i.e. no NA, Inf or Nan.
 # All objects must have sample IDs in rownames.
-# Arguments:
-# pheno: numeric matrix containing a single column. Sample IDs must be in 
-#        rownames.
-# covar: numeric matrix of covariates as obtained from model.matrix(). Should
-#        not include intercept. Sample IDs must be in rownames.
-# K: numeric matrix containing kinship values as estimated by
-#    qtl2geno::calc_kinship() or your favorite method. Samples IDs must be in 
-#    rownames and colnames.
 subset_data = function(pheno, covar, K) {
 
   samples = intersect(rownames(pheno), rownames(covar))
@@ -52,16 +42,6 @@ subset_data = function(pheno, covar, K) {
 # heritability and a confidence interval.
 # All data must be complete and all rows should be aligned before calling
 # this function.
-# Arguments:
-# pheno: numeric matrix containing a single column. Sample IDs must be in 
-#        rownames.
-# covar: numeric matrix of covariates as obtained from model.matrix(). Should
-#        not include intercept. Sample IDs must be in rownames.
-# K: numeric matrix containing kinship values as estimated by
-#    qtl2geno::calc_kinship() or your favorite method. Samples IDs must be in 
-#    rownames and colnames.
-# nperm: integer denoting the number of simulations to perform.
-# cores: integer denoting the number of cores to use for calculations.
 h2_conf_int = function(pheno, covar, K, nperm = 1000, cores = 1) {
 
   stopifnot(rownames(pheno) == rownames(K))
@@ -80,25 +60,25 @@ h2_conf_int = function(pheno, covar, K, nperm = 1000, cores = 1) {
   # Simulate nperm phenotypes and estimate their heritability.
   pheno.sim = t(rmvnorm(n = nperm, mean = rep(0, n), sigma = errcov))
   rownames(pheno.sim) = rownames(pheno)
-  h2.perms = apply(pheno.sim, 2, est_herit, kinship = K, addcovar = covar, 
-                         reml = TRUE, cores = cores)
 
-  return(list(h2.obs = h2.obs, h2.perms = h2.perms))
+  h2.perms = est_herit(pheno.sim, kinship = K, addcovar = covar, 
+                       reml = TRUE, cores = cores)
+
+  return(list(obs = h2.obs, perms = h2.perms))
 
 } # h2_conf_int()
 
 # Function to plot the distribution and 95% confidence interval.
-# Arguments:
-# h2: heritability simulations a produced by h2_conf_int().
-# title: character vector with a short title for the plot.
 herit_dist_plot = function(h2, title = "") {
 
-  mean.h2 = mean(h2$h2.perms)
-  q95 = quantile(h2$h2.perms, probs = c(0.025, 0.975))
+  mean.h2 = mean(h2$perms)
+  q95 = quantile(h2$perms, probs = c(0.025, 0.975))
+
   # All data.
-  df = data.frame(x = h2$h2.perms)
+  df = data.frame(x = h2$perms)
+
   # Just the 95% confidence interval.
-  dens = density(h2$h2.perms)
+  dens = density(h2$perms)
   dens = data.frame(x = dens$x, y = dens$y)
   dens = subset(dens, x >= q95[1] & x <= q95[2])
 
@@ -112,3 +92,17 @@ herit_dist_plot = function(h2, title = "") {
 
 } # herit_dist_plot()
 
+
+#load("/hpcdata/gac/projects/Svenson_DO850/data/svenson_DO850_qtl2_input_v2.Rdata")
+#num.na = colSums(is.na(pheno.rz))
+# Estimate K.
+#K = calc_kinship(probs = genoprobs, type = "overall", cores = 4)
+#rm(genoprobs)
+#pheno = pheno[!is.na(pheno[,1]),, drop = F]
+#covar = covar[rownames(pheno),]
+#K = K[rownames(pheno), rownames(pheno)]
+
+
+#tmp = subset_data(pheno = pheno.rz[,"bw.20",drop = F], covar = covar, K = K)
+#h2.bw.20 = h2_conf_int(pheno = tmp$pheno, covar = tmp$covar, K = tmp$K, 
+#                       nperm = 100, cores = 4)
