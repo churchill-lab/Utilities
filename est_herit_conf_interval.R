@@ -93,6 +93,19 @@ herit_dist_plot = function(h2, title = "") {
 } # herit_dist_plot()
 
 
+# From https://github.com/simecek/HPQTL/blob/master/R/normalize.matrix.r
+# This uses the sample-variance method.
+normalize.matrix = function(W) {
+
+  stopifnot(class(W) == "matrix")
+  stopifnot(is.numeric(W) & is.finite(W))
+
+  n = nrow(W)
+  k = 1 / n * (sum(diag(W)) - 2 * sum(W[upper.tri(W)])  / (n - 1))
+  return(W / k)
+
+} # normalize.matrix()
+
 #load("/hpcdata/gac/projects/Svenson_DO850/data/svenson_DO850_qtl2_input_v2.Rdata")
 #num.na = colSums(is.na(pheno.rz))
 # Estimate K.
