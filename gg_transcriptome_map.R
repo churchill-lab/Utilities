@@ -12,6 +12,7 @@
 # Nov. 14, 2017
 ################################################################################
 library(AnnotationHub)
+library(rtracklayer)
 library(tidyverse)
 
 get_ensembl_genes = function() {
