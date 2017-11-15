@@ -7,6 +7,7 @@
 # Points may be optionally colored by LOD score.
 #
 # Daniel Gatti
+# Yuka Takemon
 # dan.gatti@jax.org
 # Nov. 14, 2017
 ################################################################################
@@ -121,7 +122,10 @@ ggtmap = function(data, color.points = FALSE) {
       if(color.points) scale_color_continuous(low = "grey50", high = "red") 
     } +
     facet_grid(gene_chr ~ qtl_chr, scales = "free", shrink = TRUE) +
-    theme(panel.spacing = unit(0.1, "lines"),
+    theme(panel.background = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.spacing = unit(0.1, "lines"),
           axis.text.x = element_text(angle = 90, hjust = 1)))
 
 } # ggtmap()
