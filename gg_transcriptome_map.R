@@ -119,7 +119,7 @@ ggtmap = function(data, color.points = FALSE) {
 
 
   print(ggplot(data, aes(x = qtl_pos, y = gene_pos)) +
-    geom_point(aes(color = lod)) + {
+    geom_point(aes(color = qtl_lod)) + {
       if(color.points) scale_color_continuous(low = "grey50", high = "red") 
     } +
     facet_grid(gene_chr ~ qtl_chr, scales = "free", shrink = TRUE) +
