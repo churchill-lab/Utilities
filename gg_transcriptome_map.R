@@ -70,10 +70,6 @@ ggtmap = function(data, color.points = FALSE) {
   data$ensembl = as.character(data$ensembl)
   data$qtl_chr = as.character(data$qtl_chr)
 
-  # Get the latest Ensembl GTF.
-  ensembl = get_ensembl_genes()
-#  chr.len = get_chr_length(ensembl)
-
   gene.position.colnames = c("gene_chr", "gene_start", "gene_end")
   if(!all(gene.position.colnames %in% colnames(data))) {
 
@@ -81,6 +77,9 @@ ggtmap = function(data, color.points = FALSE) {
             "position columns (", paste0(gene.position.colnames, collapse = ","),
             ") not found."))
 
+    # Get the latest Ensembl GTF.
+    ensembl = get_ensembl_genes()
+      
     id    = ensembl$gene_id
     chr   = seqnames(ensembl)
     start = start(ensembl) * 1e-6
