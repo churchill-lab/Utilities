@@ -130,6 +130,9 @@ cis_eqtl_engine = function(expr, genoprobs, K, covar, annot, map, ncores = 1) {
 
   } # if(missing(annot))
 
+  # Remove genes that are not on Chr 1:19 & X.
+  annot = annot[annot$chr %in% c(1:19, "X"),]
+  
   tmp = synch_genes(ex = expr, an = annot)
   expr  = tmp$expr
   annot = tmp$annot
